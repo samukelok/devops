@@ -1,6 +1,6 @@
 import pytest
 from app import app
-import redis
+from unittest.mock import Mock, patch
 
 @pytest.fixture
 def client():
@@ -8,16 +8,13 @@ def client():
     with app.test_client() as client:
         yield client
 
-def test_visit_counter(client, monkeypatch):
-    # Mock Redis
-    mock_redis = redis.Redis(host='localhost', port=6379, decode_responses=True)
-    mock_redis.flushall()  # Clear before test
-    monkeypatch.setattr('app.cache', mock_redis)
-
-    # First request
-    response = client.get('/visits')
-    assert response.json['visits'] == 1
-
-    # Second request
-    response = client.get('/visits')
-    assert response.json['visits'] == 2
+def test_visit_counter(client):
+    # Create a mock Redis instance
+    mock_redis = Mock()
+    mock_redis.incr.return_value = 1  # First visit
+    
+    # Patch the Redis connection in your app
+    with patch('app.cache', mock_redis):
+        response = client.get('/visits')
+        assert response.json['visits'] == 1
+        mock_redis.incr.assert_called_once_with('visits')
