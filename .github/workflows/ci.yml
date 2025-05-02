@@ -21,7 +21,7 @@ jobs:
 
       # Step 4: Run tests (FAILS if tests crash)
       - name: Test with pytest
-        run: pytest -v test_app.py
+        run: pytest -v app.py
 
       # Step 5: Build Docker image (FAILS if Dockerfile is broken)
       - name: Build Docker
