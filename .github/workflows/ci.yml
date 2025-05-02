@@ -1,0 +1,28 @@
+name: CI Pipeline
+on: [push, pull_request]  # Runs on every git push
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      # Step 1: Checkout code
+      - uses: actions/checkout@v4
+
+      # Step 2: Set up Python
+      - uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+
+      # Step 3: Install dependencies
+      - name: Install deps
+        run: |
+          pip install -r requirements.txt
+          pip install pytest
+
+      # Step 4: Run tests (FAILS if tests crash)
+      - name: Test with pytest
+        run: pytest -v test_app.py
+
+      # Step 5: Build Docker image (FAILS if Dockerfile is broken)
+      - name: Build Docker
+        run: docker build -t your-app .
